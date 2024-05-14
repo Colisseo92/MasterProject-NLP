@@ -30,9 +30,10 @@ models = {
 }
 
 models_dict = {0:"LogisticRegression",1:"SVM",2:"KNeighborsClassifier",3:"MLPClassifier",4:"RandomForestClassifier",5:"DecisionTreeClassifier",6:"Naives Bayes / MultinomialNB",7:"Naives Bayes / BernoulliNB"}
+score_dict = {0:"accuracy",1:"precision",2:"f1",3:"recall",4:"roc_auc"}
 
-def get_model_accuracy(model, X, y):
-    cross_score = cross_val_score(model, X, y, cv=5, scoring='accuracy')
+def get_model_accuracy(model, X, y,score):
+    cross_score = cross_val_score(model, X, y, cv=5, scoring=score)
     return cross_score
 
 
@@ -48,29 +49,21 @@ if __name__ == "__main__":
     tfidf_vectorizer.fit(X)
 
     X = tfidf_vectorizer.transform(X)
-    for i in range(2, 6):
-        y = df['Score']
-        if i == 2:
-            y = y.replace(2, 1)
-            y = y.replace(3, 1)
-            y = y.replace(4, 2)
-            y = y.replace(5, 2)
-        if i == 3:
-            y = y.replace(2, 1)
-            y = y.replace(3, 2)
-            y = y.replace(4, 3)
-            y = y.replace(5, 3)
-        if i == 4:
-            y = y.replace(2, 1)
+    y = df['Score']
+    y = y.replace(2, 1)
+    y = y.replace(3, 1)
+    y = y.replace(4, 2)
+    y = y.replace(5, 2)
 
-        model_number = 0
-        for name, model in models.items():
-            score = get_model_accuracy(model, X, y)
-            print(f'{name} Score : {np.mean(score)}, StandardDeviation : {np.std(score)}')
+    model_number = 0
+    for name, model in models.items():
+        for number, score in score_dict.items():
+            result = get_model_accuracy(model, X, y, score)
+            print(f'{name} {score} : {np.mean(result)}, StandardDeviation : {np.std(result)}')
             model_list.append(model_number)
-            split.append(i)
-            accuracy.append(np.mean(score))
+            split.append(number)
+            accuracy.append(np.mean(result))
 
-            model_number += 1
+        model_number += 1
 
-    plot3dAccuracyPlot(accuracy,model_list,split,"test",list(models_dict.keys()),models_dict.values())
+    plot3dAccuracyPlot(accuracy,model_list,split,"test",list(models_dict.keys()),models_dict.values(),"precision")
