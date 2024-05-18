@@ -7,7 +7,7 @@ from sklearn.metrics import classification_report
 import matplotlib.pyplot as plt
 import numpy as np
 
-df = pd.read_csv("../datas/lemmatized.csv")
+df = pd.read_csv("../datas/lemmatized2.csv")
 
 X = df["lemmatized"]
 y = df["Score"]
@@ -26,7 +26,7 @@ tfidf_vectorizer.fit(X_train)
 X_train_tfidf = tfidf_vectorizer.transform(X_train)
 X_test_tfidf = tfidf_vectorizer.transform(X_test)
 
-svc = LinearSVC(class_weight="balanced",random_state=42)
+svc = LinearSVC(penalty='l2',loss="squared_hinge",C=1,class_weight=None,random_state=42)
 print("created...")
 
 svc.fit(X_train_tfidf, y_train)
