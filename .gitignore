@@ -4,6 +4,7 @@
 
 #datas
 datas/*.csv
+datas/*.txt
 
 # User-specific stuff
 .idea/**/workspace.xml

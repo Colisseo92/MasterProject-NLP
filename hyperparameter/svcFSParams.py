@@ -1,26 +1,23 @@
 import pandas as pd
-import time
 from sklearn.model_selection import train_test_split
 from sklearn.svm import LinearSVC
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.metrics import classification_report
 import matplotlib.pyplot as plt
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import chi2
 from sklearn.model_selection import GridSearchCV
 import numpy as np
 
-start_time = time.time()
-
-df = pd.read_csv("../datas/lemmatized3.csv",nrows=100000)
-df.dropna(subset=["lemmatized", "Score"], inplace=True)
+df = pd.read_csv("../datas/lemmatized2.csv")
 
 X = df["lemmatized"]
 y = df["Score"]
-y = y.replace(1,0)
-y = y.replace(2,0)
-y = y.replace(3,0)
-y = y.replace(4,1)
-y = y.replace(5,1)
+y = y.replace(2,1)
+y = y.replace(3,1)
+y = y.replace(4,2)
+y = y.replace(5,2)
 
 print("loaded...")
 
@@ -29,7 +26,15 @@ tfidf_vectorizer.fit(X)
 
 X = tfidf_vectorizer.transform(X)
 
-print("transformed....")
+ch2_features = SelectKBest(chi2, k=6000).fit(X, y).get_support(indices=True)
+ch2_vocab = np.array(tfidf_vectorizer.get_feature_names_out())[ch2_features]
+
+#####" AVEC FEATURE SELECT
+
+vectorizer = TfidfVectorizer(vocabulary=ch2_vocab)
+vectorizer.fit(df["lemmatized"])
+
+X_tfidf = vectorizer.transform(df["lemmatized"])
 
 params = {
     'penalty':['l1','l2'],
@@ -43,9 +48,6 @@ params = {
 svc = LinearSVC(random_state=42,max_iter=3000)
 
 search = GridSearchCV(svc,params,cv=5,scoring="roc_auc",error_score=0.0)
-search.fit(X,y)
+search.fit(X_tfidf,y)
 
 print(search.best_params_)
-
-end_time = time.time()
-print("time elapsed: ", end_time-start_time)
