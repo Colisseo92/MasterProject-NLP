@@ -31,7 +31,7 @@ tfidf_vectorizer.fit(X_train)
 X_train_tfidf = tfidf_vectorizer.transform(X_train)
 
 #SELECTION DES MEILLEURS FEATURES
-best_feature = SelectKBest(mutual_info_classif, k=300).fit(X_train_tfidf, y_train).get_support(indices=True)
+best_feature = SelectKBest(chi2 , k=300).fit(X_train_tfidf, y_train).get_support(indices=True)
 best_feature_vocab = np.array(tfidf_vectorizer.get_feature_names_out())[best_feature]
 
 #####" AVEC FEATURE SELECT
@@ -51,7 +51,7 @@ y_pred = svc.predict(X_test_tfidf_2)
 
 print(classification_report(y_test,y_pred,digits=3))
 ConfusionMatrixDisplay.from_predictions(y_test,y_pred,cmap=plt.cm.Blues)
-plt.title("Confusion Matrix LinearSVC avec SelectKBest - mutual_info_classif k = 300")
+plt.title("Confusion Matrix LinearSVC avec SelectKBest - f_classif k = 300")
 plt.show()
 
 end_time = time.time()
