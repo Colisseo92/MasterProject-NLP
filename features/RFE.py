@@ -1,7 +1,6 @@
 from sklearn.feature_selection import RFE
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.metrics import classification_report
@@ -20,18 +19,14 @@ y = y.replace(3,0)
 y = y.replace(4,1)
 y = y.replace(5,1)
 
-print("loaded...")
-
 tfidf_vectorizer = TfidfVectorizer()
 tfidf_vectorizer.fit(X)
 X_new = tfidf_vectorizer.transform(X)
-print("transformed")
 
-logreg = svc = LinearSVC(penalty='l2',loss="squared_hinge",C=1,class_weight=None,random_state=42)
-print("created...")
-rfe_selector = RFE(estimator=logreg,n_features_to_select=300)
+svc_selection = svc = LinearSVC(penalty='l2',loss="squared_hinge",C=1,class_weight=None,random_state=42)
+rfe_selector = RFE(estimator=svc_selection,n_features_to_select=300)
+rfe_selector.fit_transform(X_new,y)
 
-a = rfe_selector.fit_transform(X_new,y)
 selected_features = rfe_selector.get_support(indices=True)
 best_feature_vocab = np.array(tfidf_vectorizer.get_feature_names_out())[selected_features]
 
@@ -44,8 +39,6 @@ X_train_tfidf = vectorizer.transform(X_train)
 X_test_tfidf = vectorizer.transform(X_test)
 
 svc = LinearSVC(penalty='l2',loss="squared_hinge",C=1,class_weight=None,random_state=42)
-print("created...")
-
 svc.fit(X_train_tfidf, y_train)
 
 y_pred = svc.predict(X_test_tfidf)
